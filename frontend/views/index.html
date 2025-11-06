@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Assignment 2 — Frontend</title>
+  <style>
+    body{font-family:Arial;max-width:900px;margin:24px}
+    .card{border:1px solid #ddd;padding:14px;border-radius:8px;margin-bottom:16px}
+    input,textarea,select,button{font-size:15px;padding:8px;margin-top:6px;width:100%;box-sizing:border-box}
+    pre{background:#f8f8f8;padding:10px;white-space:pre-wrap}
+  </style>
+</head>
+<body>
+  <h1>Assignment 2 — Node (Frontend) → Flask (Backend)</h1>
+
+  <div class="card">
+    <h3>Grade Checker</h3>
+    <form id="gradeForm">
+      <input name="score" type="number" placeholder="Enter score (0-100)" required />
+      <button type="submit">Get Grade</button>
+    </form>
+    <pre id="gradeOut"></pre>
+  </div>
+
+  <div class="card">
+    <h3>Student Grades (add/update)</h3>
+    <form id="studentForm">
+      <input name="name" type="text" placeholder="Student name" required />
+      <input name="grade" type="text" placeholder="Grade (A/B/C/D/F)" required />
+      <button type="submit">Add / Update Student</button>
+    </form>
+    <button id="showStudents">Show All Students</button>
+    <pre id="studentsOut"></pre>
+  </div>
+
+  <div class="card">
+    <h3>Write to File</h3>
+    <form id="writeForm">
+      <textarea name="content" rows="4" placeholder="Text to write into data.txt" required></textarea>
+      <button type="submit">Write File</button>
+    </form>
+    <pre id="writeOut"></pre>
+  </div>
+
+  <div class="card">
+    <h3>Read from File</h3>
+    <button id="readFile">Read File</button>
+    <pre id="readOut"></pre>
+  </div>
+
+<script>
+async function post(action, body){
+  const payload = { action, ...body };
+  const resp = await fetch('/api/submit', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify(payload)
+  });
+  return resp.json();
+}
+
+/* Grade */
+document.getElementById('gradeForm').addEventListener('submit', async e=>{
+  e.preventDefault();
+  const score = e.target.score.value;
+  const r = await post('grade', { score });
+  document.getElementById('gradeOut').textContent = JSON.stringify(r, null, 2);
+});
+
+/* Add student */
+document.getElementById('studentForm').addEventListener('submit', async e=>{
+  e.preventDefault();
+  const name = e.target.name.value;
+  const grade = e.target.grade.value;
+  const r = await post('add_student', { name, grade });
+  document.getElementById('studentsOut').textContent = JSON.stringify(r, null, 2);
+});
+
+/* Show students */
+document.getElementById('showStudents').addEventListener('click', async ()=>{
+  const r = await post('show_students', {});
+  document.getElementById('studentsOut').textContent = JSON.stringify(r, null, 2);
+});
+
+/* Write file */
+document.getElementById('writeForm').addEventListener('submit', async e=>{
+  e.preventDefault();
+  const content = e.target.content.value;
+  const r = await post('write_file', { content });
+  document.getElementById('writeOut').textContent = JSON.stringify(r, null, 2);
+});
+
+/* Read file */
+document.getElementById('readFile').addEventListener('click', async ()=>{
+  const r = await post('read_file', {});
+  document.getElementById('readOut').textContent = JSON.stringify(r, null, 2);
+});
+</script>
+</body>
+</html>
